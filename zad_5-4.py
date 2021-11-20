@@ -81,7 +81,7 @@ get_series()
 
 def top_titles(num):
     library[:] = sorted(library, key = lambda x: x.views, reverse=True)
-    print("Najpopularniejsze filmy i seriale dnia", datetime.date.today())
+    print("Najpopularniejsze filmy i seriale dnia", datetime.date.today().strftime('%d-%m-%Y'))
     print(*library[:num], sep = '\n')
     
 for pre, fill, node in RenderTree(main):
