@@ -2,8 +2,10 @@ from anytree import Node, RenderTree
 from faker import Faker
 import random
 import datetime
+import locale
 
 fake = Faker('pl_PL')
+locale.setlocale(locale.LC_COLLATE, "pl_PL.UTF-8")
 
 class Movies:
     def __init__(self, title, year):
@@ -34,7 +36,15 @@ class Series(Movies):
         return f'"{self.title.title()}" ({self.year}), Kategoria: {self.genre}, Odcinek: {self.title.title()} S{self.season_number:02}E{self.episode_number:02}, Oglądalność: {self.views}'
 
 library = []
-for i in range(10):
+
+def call_func(func):
+    def multiple():  
+        for i in range(10):
+            func()
+    return multiple()
+
+@call_func
+def create_list(): 
     library.append(Movies(title = fake.word(), year = fake.year()))
     library.append(Series(title = fake.word(), year = fake.year(), season_number = fake.random_digit_not_null(), episode_number = fake.random_int(1,20)))
 
@@ -44,13 +54,7 @@ for x in library:
     genre = ['Komedia', 'Dramat', 'Akcja', 'Horror']
     x.genres(random.choice(genre))
 
-def call_generate_views(func):
-    def multiple():  
-        for i in range(10):
-            func()
-    return multiple()
-
-@call_generate_views    
+@call_func   
 def generate_views():
     random.shuffle(library)
     library[0].views += random.randrange(1, 100)
@@ -58,21 +62,21 @@ def generate_views():
 def search(x):
     for i in range(len(library)):
         if library[i] == x:
-            print(f"Wynik wyszykiwania dla: '{x.title.upper()}'", x, sep = '\n')
+            print(f"Wynik wyszukiwania dla: '{x.title.upper()}'", x, sep = '\n')
 
 main = Node("\nBiblioteka filmów i seriali\n")
 films = Node("Filmy", parent = main)
 series = Node("Seriale", parent = main)
 
 def get_movies():
-    library[:] = sorted(library, key = lambda x: x.title)
+    library[:] = sorted(library, key = lambda x: locale.strxfrm(x.title))
     for x in library:
         if x.__class__.__name__ == 'Movies':          
             film = Node(f"{x}", parent = films)
 get_movies()
 
 def get_series():
-    library[:] = sorted(library, key = lambda x: x.title)
+    library[:] = sorted(library, key = lambda x: locale.strxfrm(x.title))
     for x in library:
         if x.__class__.__name__ == 'Series':
             serie = Node(f"{x}", parent = series)
